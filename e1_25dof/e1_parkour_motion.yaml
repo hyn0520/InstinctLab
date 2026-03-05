@@ -1,0 +1,8 @@
+selected_files:
+    # 根据需要添加更多 motion 文件
+    #- e1_running_retargeted.npz
+    # - e1_sidewalk_retargeted.npz
+    #- e1_standing_retargeted.npz
+    # - e1_turning_retargeted.npz
+    # - e1_walk_backward_retargeted.npz
+    - e1_walk_forward_retargeted.npz

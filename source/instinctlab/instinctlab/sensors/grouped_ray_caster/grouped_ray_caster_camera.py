@@ -96,6 +96,7 @@ class GroupedRayCasterCamera(GroupedRayCaster):
     @property
     def frame(self) -> torch.tensor:
         """Frame number when the measurement took place."""
+        self._ensure_frame_buffer()
         return self._frame
 
     """
@@ -128,6 +129,7 @@ class GroupedRayCasterCamera(GroupedRayCaster):
     def reset(self, env_ids: Sequence[int] | None = None):
         # reset the timestamps
         super().reset(env_ids)
+        self._ensure_frame_buffer()
         # resolve None
         if env_ids is None:
             env_ids = slice(None)
@@ -244,6 +246,7 @@ class GroupedRayCasterCamera(GroupedRayCaster):
     def _update_buffers_impl(self, env_ids: Sequence[int]):
         """Fills the buffers of the sensor data."""
         self._update_mesh_transforms(env_ids)
+        self._ensure_frame_buffer()
 
         # increment frame count
         self._frame[env_ids] += 1
@@ -316,6 +319,14 @@ class GroupedRayCasterCamera(GroupedRayCaster):
 
         if "normals" in self.cfg.data_types:
             self._data.output["normals"][env_ids] = ray_normal.view(-1, *self.image_shape, 3)
+
+    def _ensure_frame_buffer(self):
+        """Ensure frame buffer exists even if sensor data is queried before full camera init."""
+        if hasattr(self, "_frame") and self._frame is not None:
+            return
+        if not hasattr(self, "_view") or self._view is None:
+            return
+        self._frame = torch.zeros(self._view.count, device=self._device, dtype=torch.long)
 
     def _debug_vis_callback(self, event):
         if not hasattr(self, "ray_hits_w"):

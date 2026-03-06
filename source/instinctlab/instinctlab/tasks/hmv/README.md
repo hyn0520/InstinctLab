@@ -10,14 +10,13 @@
 
 2. Train the policy:
 ```bash
-python scripts/instinct_rl/train.py --headless --task=Instinct-Parkour-Target-Amp-G1-v0
+python scripts/instinct_rl/train.py --headless --task=Instinct-Parkour-Target-Amp-G1-v0 --headless --num_envs=4096
 ```
 
 3. Play trained policy (load_run must be provided, absolute path is recommended, or use `--no_resume` to visualize untrained policy):
 
 ```bash
-python source/instinctlab/instinctlab/tasks/parkour/scripts/play.py --task=Instinct-Parkour-Target-Amp-G1-v0 --load_run=<run_name>
-```
+python source/instinctlab/instinctlab/tasks/hmv/scripts/play.py --task=Instinct-Parkour-Target-Amp-E1-v0 --load_run=/home/user/hyn/InstinctLab/logs/20260305_233222 --num_envs=1
 
 4. Export trained policy (load_run must be provided, absolute path is recommended):
 

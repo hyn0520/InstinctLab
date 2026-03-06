@@ -97,10 +97,14 @@ class PoseVelocityCommand(CommandTerm):
                         self.ang_vel_z_range[env_indices, 0] = value["ang_vel_z"][0]
                         self.ang_vel_z_range[env_indices, 1] = value["ang_vel_z"][1]
                 else:
-                    raise RuntimeError(f"Terrain type {key} not found in the terrain generator sub-terrain names.")
+                    # Allow configs that specify velocity ranges for terrains that are disabled/removed.
+                    # This makes it possible to train on a terrain subset without editing the command config.
+                    continue
 
             if self.cfg.random_velocity_terrain is not None:
                 for key in self.cfg.random_velocity_terrain:
+                    if key not in sub_terrains_names:
+                        continue
                     terrain_type_index = sub_terrains_names.index(key)
                     type_indices = np.where(sub_indices == terrain_type_index)[0]
                     for type_indice in type_indices:

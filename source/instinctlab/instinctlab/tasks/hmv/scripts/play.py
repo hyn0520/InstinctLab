@@ -6,8 +6,12 @@ import argparse
 import os
 import subprocess
 import sys
+from pathlib import Path
 
-sys.path.append(os.path.join(os.getcwd(), "scripts", "instinct_rl"))
+# Ensure the project-local `scripts/instinct_rl/cli_args.py` is imported
+# even when a third-party `cli_args` package exists in site-packages.
+project_root = Path(__file__).resolve().parents[6]
+sys.path.insert(0, str(project_root / "scripts" / "instinct_rl"))
 
 from isaaclab.app import AppLauncher
 

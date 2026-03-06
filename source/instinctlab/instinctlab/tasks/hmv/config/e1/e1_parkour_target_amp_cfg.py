@@ -97,9 +97,19 @@ motion_reference_cfg = MotionReferenceManagerCfg(
 # ============================================================
 # Play terrain variant
 # ============================================================
-ROUGH_TERRAINS_CFG_PLAY = copy.deepcopy(ROUGH_TERRAINS_CFG)
-for _sub_name, _sub_cfg in ROUGH_TERRAINS_CFG_PLAY.sub_terrains.items():
-    _sub_cfg.wall_prob = [0.0, 0.0, 0.0, 0.0]
+_TRAIN_TERRAIN_NAMES = ("perlin_rough", "perlin_rough_stand")
+
+# Train terrain set: keep only Perlin rough variants.
+ROUGH_TERRAINS_CFG_TRAIN = copy.deepcopy(ROUGH_TERRAINS_CFG)
+for _k in _TRAIN_TERRAIN_NAMES:
+    if _k not in ROUGH_TERRAINS_CFG_TRAIN.sub_terrains:
+        raise KeyError(f"Terrain '{_k}' not found in ROUGH_TERRAINS_CFG.sub_terrains")
+ROUGH_TERRAINS_CFG_TRAIN.sub_terrains = {_k: ROUGH_TERRAINS_CFG_TRAIN.sub_terrains[_k] for _k in _TRAIN_TERRAIN_NAMES}
+
+# Play terrain variant (same subset, but disable walls).
+ROUGH_TERRAINS_CFG_PLAY = copy.deepcopy(ROUGH_TERRAINS_CFG_TRAIN)
+for _sub_cfg in ROUGH_TERRAINS_CFG_PLAY.sub_terrains.values():
+    _sub_cfg.wall_prob = [0.0, 0.0, 0.0, 0.0]  # 测试时关闭墙壁以便观察角色与地形的交互情况。
 
 
 # ============================================================
@@ -189,6 +199,13 @@ class E1ParkourRoughEnvCfg_PLAY(E1ParkourRoughEnvCfg):
         if self.scene.terrain.terrain_generator is not None:
             self.scene.terrain.terrain_generator.num_rows = 4
             self.scene.terrain.terrain_generator.num_cols = 10
+            for _sub_cfg in self.scene.terrain.terrain_generator.sub_terrains.values():
+                if hasattr(_sub_cfg, "wall_prob"):
+                    _wall_prob = _sub_cfg.wall_prob
+                    if isinstance(_wall_prob, (list, tuple)):
+                        _sub_cfg.wall_prob = [0.0 for _ in _wall_prob]
+                    else:
+                        _sub_cfg.wall_prob = 0.0
         self.scene.leg_volume_points.debug_vis = True
         self.commands.base_velocity.debug_vis = True
         self.events.physics_material = None
